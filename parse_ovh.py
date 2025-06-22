@@ -2,8 +2,8 @@ import sys
 
 from bs4 import BeautifulSoup
 
-from .src.money import parse_price
-from .src.save_results import save_results
+from src.money import parse_price
+from src.save_results import save_results
 
 
 SERVICE_NAME = 'ovh'
@@ -16,7 +16,7 @@ def get_tld_result(
 	return {
 		'registration': registration,
 		'renewal': renewal,
-		'transfer': transfer
+		'transfer': transfer,
 	}
 
 def parse_html(html):
