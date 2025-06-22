@@ -1,5 +1,6 @@
 import os
 import json
+from datetime import datetime
 
 def save_results(service_name, tld_results):
 
@@ -22,6 +23,7 @@ def save_results(service_name, tld_results):
 
 		if service_name not in data:
 			data[service_name] = {}
+		data[service_name]['date'] = datetime.now().isoformat()
 		for key, value in service_data.items():
 			if isinstance(value, dict):
 				if key not in data[service_name]:
