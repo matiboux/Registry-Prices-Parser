@@ -1,8 +1,9 @@
-import os
 import sys
-import json
 
 from bs4 import BeautifulSoup
+
+from src.money import parse_price
+from src.save_results import save_results
 
 
 SERVICE_NAME = 'scaleway'
@@ -17,7 +18,7 @@ def get_tld_result(
 		'registration': registration,
 		'renewal': renewal,
 		'transfer': transfer,
-		'restore': restore
+		'restore': restore,
 	}
 
 def parse_html(html):
@@ -36,47 +37,24 @@ def parse_html(html):
 		if len(cells) < 4:
 			continue
 
-		tld = cells[0].get_text(strip=True).lstrip('.').lower()
-		registration = cells[1].get_text(strip=True)
-		renewal = cells[2].get_text(strip=True)
-		transfer = cells[3].get_text(strip=True)
-		restore = cells[4].get_text(strip=True) if len(cells) > 4 else ""
+		tld = cells[0].get_text(strip=True).lower()
+		if not tld:
+			continue
+		tld = tld.encode('idna').decode('ascii')
+
+		registration_price = parse_price(cells[1].get_text(strip=True))
+		renewal_price = parse_price(cells[2].get_text(strip=True))
+		transfer_price = parse_price(cells[3].get_text(strip=True))
+		restore_price = parse_price(cells[4].get_text(strip=True))
 
 		tld_results[tld] = get_tld_result(
-			registration,
-			renewal,
-			transfer,
-			restore
+			{ registration_price['currency']: registration_price['price'] },
+			{ renewal_price['currency']: renewal_price['price'] },
+			{ transfer_price['currency']: transfer_price['price'] },
+			{ restore_price['currency']: restore_price['price'] },
 		)
 
 	return tld_results
-
-def save_results(tld_results):
-
-	tlds_incomplete = []
-
-	for tld, service_data in tld_results.items():
-
-		os.makedirs('domains', exist_ok=True)
-		filename = f"domains/{tld}.json"
-
-		if any(not value for value in service_data.values()):
-			tlds_incomplete.append(tld)
-
-		data = {}
-		if os.path.exists(filename):
-			with open(filename, 'r', encoding='utf-8') as f:
-				data = json.load(f)
-		data[SERVICE_NAME] = service_data
-
-		with open(filename, 'w', encoding='utf-8') as f:
-			json.dump(data, f, indent = 4, ensure_ascii = False)
-
-	print(f"Wrote {len(tld_results)} TLDs to JSON files.")
-
-	tld_incomplete_len = len(tlds_incomplete)
-	if tld_incomplete_len > 0:
-		print(f"Warning: {tld_incomplete_len} TLDs have incomplete data.")
 
 def main():
 
@@ -90,7 +68,7 @@ def main():
 
 	tld_results = parse_html(html)
 
-	save_results(tld_results)
+	save_results(SERVICE_NAME, tld_results)
 
 if __name__ == '__main__':
 	main()
