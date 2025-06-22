@@ -6,7 +6,7 @@ from src.money import parse_price
 from src.save_results import save_results
 
 
-SERVICE_NAME = 'scaleway'
+SERVICE_NAME = 'gandi'
 
 def get_tld_result(
 	registration,
