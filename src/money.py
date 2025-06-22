@@ -4,6 +4,7 @@ def parse_currency_symbol(symbol):
 	currency_symbols = {
 		'€': 'eur',
 		'$': 'usd',
+		'us$': 'usd',
 		'£': 'gbp',
 	}
 	return currency_symbols.get(symbol, symbol)
