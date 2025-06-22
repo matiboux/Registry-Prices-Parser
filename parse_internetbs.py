@@ -63,11 +63,9 @@ def parse_html(html):
 			member_price = member_td.get_text(strip=True).split()[0]
 
 		if tld not in tld_results:
-			tld_results[tld] = {
-				SERVICE_NAME: TLD_RESULT_TEMPLATE.copy()
-			}
+			tld_results[tld] = TLD_RESULT_TEMPLATE.copy()
 
-		tld_results[tld][SERVICE_NAME][op_key] = member_price
+		tld_results[tld][op_key] = member_price
 
 	return tld_results
 
@@ -75,19 +73,19 @@ def save_results(tld_results):
 
 	tlds_incomplete = []
 
-	for tld, new_data in tld_results.items():
+	for tld, service_data in tld_results.items():
 
 		os.makedirs('domains', exist_ok=True)
 		filename = f"domains/{tld}.json"
+
+		if any(not value for value in service_data.values()):
+			tlds_incomplete.append(tld)
 
 		data = {}
 		if os.path.exists(filename):
 			with open(filename, 'r', encoding='utf-8') as f:
 				data = json.load(f)
-		data.update(new_data)
-
-		if any(not value for value in data[SERVICE_NAME].values()):
-			tlds_incomplete.append(tld)
+		data[SERVICE_NAME] = service_data
 
 		with open(filename, 'w', encoding='utf-8') as f:
 			json.dump(data, f, indent = 4, ensure_ascii = False)
