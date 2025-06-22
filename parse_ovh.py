@@ -1,7 +1,4 @@
-import os
 import sys
-import json
-import re
 
 from bs4 import BeautifulSoup
 
@@ -67,7 +64,7 @@ def main():
 
 	tld_results = parse_html(html)
 
-	save_results(tld_results)
+	save_results(SERVICE_NAME, tld_results)
 
 if __name__ == '__main__':
 	main()
