@@ -14,12 +14,10 @@ def get_tld_result(
 	restore,
 ):
 	return {
-		SERVICE_NAME: {
-			'registration': registration,
-			'renewal': renewal,
-			'transfer': transfer,
-			'restore': restore
-		}
+		'registration': registration,
+		'renewal': renewal,
+		'transfer': transfer,
+		'restore': restore
 	}
 
 def parse_html(html):
@@ -57,19 +55,19 @@ def save_results(tld_results):
 
 	tlds_incomplete = []
 
-	for tld, new_data in tld_results.items():
+	for tld, service_data in tld_results.items():
 
 		os.makedirs('domains', exist_ok=True)
 		filename = f"domains/{tld}.json"
+
+		if any(not value for value in service_data.values()):
+			tlds_incomplete.append(tld)
 
 		data = {}
 		if os.path.exists(filename):
 			with open(filename, 'r', encoding='utf-8') as f:
 				data = json.load(f)
-		data.update(new_data)
-
-		if any(not value for data in tld_results.values() for value in data[SERVICE_NAME].values()):
-			tlds_incomplete.append(tld)
+		data[SERVICE_NAME] = service_data
 
 		with open(filename, 'w', encoding='utf-8') as f:
 			json.dump(data, f, indent = 4, ensure_ascii = False)
