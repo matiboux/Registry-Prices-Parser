@@ -1,0 +1,55 @@
+# -- Generic rules:
+
+# Environment files
+.env*.local
+
+# Temporary files
+._*
+*.cache
+*.log*
+*.swp
+*~
+
+# System files
+.DS_Store
+Thumbs.db
+
+# -- Editor rules:
+
+# VS Code
+.vscode/**/*
+!.vscode/extensions.json
+
+# Jetbrains
+.idea/
+
+# Other
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# -- Application rules:
+
+# Python
+__pycache__/
+.ipynb_checkpoints/
+.pytest_cache/
+.venv/
+.coverage
+cov.json
+
+# Node
+node_modules/
+dist/
+dist-ssr/
+.vite/
+
+# Application data
+domains/
+html/
+
+# -- Specific to gitignore:
+
+# N/A
