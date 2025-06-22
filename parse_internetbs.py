@@ -1,8 +1,9 @@
-import os
 import sys
-import json
 
 from bs4 import BeautifulSoup
+
+from src.money import parse_price
+from src.save_results import save_results
 
 
 SERVICE_NAME = 'internetbs'
@@ -62,39 +63,16 @@ def parse_html(html):
 		else:
 			member_price = member_td.get_text(strip=True).split()[0]
 
+		member_price = parse_price(member_price)
+
 		if tld not in tld_results:
 			tld_results[tld] = TLD_RESULT_TEMPLATE.copy()
 
-		tld_results[tld][op_key] = member_price
+		tld_results[tld][op_key] = {
+			member_price['currency']: member_price['price']
+		}
 
 	return tld_results
-
-def save_results(tld_results):
-
-	tlds_incomplete = []
-
-	for tld, service_data in tld_results.items():
-
-		os.makedirs('domains', exist_ok=True)
-		filename = f"domains/{tld}.json"
-
-		if any(not value for value in service_data.values()):
-			tlds_incomplete.append(tld)
-
-		data = {}
-		if os.path.exists(filename):
-			with open(filename, 'r', encoding='utf-8') as f:
-				data = json.load(f)
-		data[SERVICE_NAME] = service_data
-
-		with open(filename, 'w', encoding='utf-8') as f:
-			json.dump(data, f, indent = 4, ensure_ascii = False)
-
-	print(f"Wrote {len(tld_results)} TLDs to JSON files.")
-
-	tld_incomplete_len = len(tlds_incomplete)
-	if tld_incomplete_len > 0:
-		print(f"Warning: {tld_incomplete_len} TLDs have incomplete data.")
 
 def main():
 
@@ -108,7 +86,7 @@ def main():
 
 	tld_results = parse_html(html)
 
-	save_results(tld_results)
+	save_results(SERVICE_NAME, tld_results)
 
 if __name__ == '__main__':
 	main()
