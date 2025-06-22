@@ -21,7 +21,6 @@ def main():
 		'renewal': 'renewal',
 		'transfer': 'transfer',
 		'restore': 'restore',
-		# 'reactivate': 'restore',
 	}
 
 	tld_results = {}
@@ -56,24 +55,7 @@ def main():
 			print(f"Warning: No data row found for TLD '{tld}' and operation '{op_raw}'")
 			continue
 
-		# .find_next_sibling('tr')
-		# if not tr:
-		# 	print(f"Warning: No data row found for TLD '{tld}' and operation '{op_raw}'")
-		# 	continue
-		# tds = tr.find_all('td')
-		# if len(tds) < 2:
-		# 	tr = tr.find_next_sibling('tr')
-		# 	if not tr:
-		# 		print(f"Warning: No data row found for TLD '{tld}' and operation '{op_raw}'")
-		# 		continue
-		# 	tds = tr.find_all('td')
-		# 	if len(tds) < 2:
-		# 		print(f"Warning: Unexpected number of columns for TLD '{tld}' and operation '{op_raw}'")
-		# 		continue
-
-		# Always use the first period row (usually "1 year" or "1+ year")
 		member_td = tds[1]
-		# Prefer <span class="oldPrice"> if present, else fallback to text
 		old_price_span = member_td.find('span', class_='oldPrice')
 		if old_price_span:
 			member_price = old_price_span.get_text(strip=True)
@@ -94,11 +76,8 @@ def main():
 	for tld, data in tld_results.items():
 		os.makedirs('domains', exist_ok=True)
 		filename = f"domains/{tld}.json"
-		# if any(not data["internetbs"][op] for op in operation_map.values()):
-		# 	print(f"Warning: Incomplete data for TLD '{tld}'.")
 		with open(filename, 'w', encoding='utf-8') as f:
 			json.dump(data, f, indent=4, ensure_ascii=False)
-		# print(f"Wrote {filename}")
 
 if __name__ == '__main__':
     main()
