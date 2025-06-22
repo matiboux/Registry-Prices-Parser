@@ -27,7 +27,12 @@ def parse_html(html):
 	soup = BeautifulSoup(html, 'html.parser')
 	tld_results = {}
 
-	for row in soup.find_all('tr'):
+	tbody = soup.find('tbody')
+	if not tbody:
+		print("Warning: No <tbody> found in the HTML.")
+		return tld_results
+
+	for row in tbody.find_all('tr'):
 
 		cells = row.find_all(['td', 'th'])
 		if len(cells) < 4:
@@ -67,7 +72,7 @@ def save_results(tld_results):
 			tlds_incomplete.append(tld)
 
 		with open(filename, 'w', encoding='utf-8') as f:
-			json.dump(new_data, f, indent = 4, ensure_ascii = False)
+			json.dump(data, f, indent = 4, ensure_ascii = False)
 
 	print(f"Wrote {len(tld_results)} TLDs to JSON files.")
 
