@@ -8,6 +8,11 @@ if [ $# -gt 0 ] && ([ "$1" = '-r' ] || [ "$1" = '--reset-domains' ]); then
 	RESET_DOMAINS=1
 fi
 
+FORCE_DOWNLOAD=0
+if [ $# -gt 0 ] && ([ "$1" = '-f' ] || [ "$1" = '--force-download' ]); then
+	FORCE_DOWNLOAD=1
+fi
+
 if [ $RESET_DOMAINS -eq 1 ]; then
 	rm -rf domains/
 fi
@@ -17,23 +22,39 @@ mkdir -p domains/
 
 echo ''
 
+# -- Cloudflare --
+echo 'Parsing Cloudflare domain prices...'
+if [ -f 'html/cloudflare.html' ]; then
+	python parse_cloudflare.py html/cloudflare.html
+fi
+if [ ! -f 'html/cloudflare_usd.html' ] || [ $FORCE_DOWNLOAD -eq 1 ]; then
+	wget -q -O 'html/cloudflare_usd.html' 'https://cfdomainpricing.com/' 2>/dev/null
+fi
+if [ -f 'html/cloudflare_usd.html' ]; then
+	python parse_cloudflare.py html/cloudflare_usd.html
+fi
+if [ -f 'html/cloudflare_eur.html' ]; then
+	python parse_cloudflare.py html/cloudflare_eur.html
+fi
+echo ''
+
 # -- InternetBS --
 # Automatic download is not available
 echo 'Parsing InternetBS domain prices...'
 if [ -f 'html/internetbs.html' ]; then
 	python parse_internetbs.py html/internetbs.html
 fi
-if [ -f 'html/internetbs_eur.html' ]; then
-	python parse_internetbs.py html/internetbs_eur.html
-fi
 if [ -f 'html/internetbs_usd.html' ]; then
 	python parse_internetbs.py html/internetbs_usd.html
+fi
+if [ -f 'html/internetbs_eur.html' ]; then
+	python parse_internetbs.py html/internetbs_eur.html
 fi
 echo ''
 
 # -- Scaleway --
 echo 'Parsing Scaleway domain prices...'
-if [ ! -f 'html/scaleway.html' ]; then
+if [ ! -f 'html/scaleway.html' ] || [ $FORCE_DOWNLOAD -eq 1 ]; then
 	wget -q -O 'html/scaleway.html' 'https://www.scaleway.com/en/domains-name/' 2>/dev/null
 fi
 if [ -f 'html/scaleway.html' ]; then
@@ -49,11 +70,11 @@ echo 'Parsing Namecheap domain prices...'
 if [ -f 'html/namecheap.html' ]; then
 	python parse_namecheap.py html/namecheap.html
 fi
-if [ -f 'html/namecheap_eur.html' ]; then
-	python parse_namecheap.py html/namecheap_eur.html
-fi
 if [ -f 'html/namecheap_usd.html' ]; then
 	python parse_namecheap.py html/namecheap_usd.html
+fi
+if [ -f 'html/namecheap_eur.html' ]; then
+	python parse_namecheap.py html/namecheap_eur.html
 fi
 echo ''
 
@@ -62,12 +83,14 @@ echo 'Parsing Gandi domain prices...'
 if [ -f 'html/gandi.html' ]; then
 	python parse_gandi.py html/gandi.html
 fi
-wget -q -O 'html/gandi_xn.html' 'https://www.gandi.net/en/domain/tld?prefix=xn--' 2>/dev/null
+if [ ! -f 'html/gandi_xn.html' ] || [ $FORCE_DOWNLOAD -eq 1 ]; then
+	wget -q -O 'html/gandi_xn.html' 'https://www.gandi.net/en/domain/tld?prefix=xn--' 2>/dev/null
+fi
 if [ -f 'html/gandi_xn.html' ]; then
 	python parse_gandi.py html/gandi_xn.html
 fi
 while read -r letter; do
-	if [ ! -f "html/gandi_${letter}.html" ]; then
+	if [ ! -f "html/gandi_${letter}.html" ] || [ $FORCE_DOWNLOAD -eq 1 ]; then
 		wget -q -O "html/gandi_${letter}.html" "https://www.gandi.net/en/domain/tld?prefix=${letter}" 2>/dev/null
 	fi
 	if [ -f "html/gandi_${letter}.html" ]; then
