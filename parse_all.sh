@@ -58,70 +58,68 @@ fi
 
 echo ''
 
+parse_service() {
+	service_name="$1"
+	for file in $(find html -type f -name "${service_name}[_\.]*"); do
+        currency=$(echo "$file" | sed -n "s/.*${service_name}[_\.]\(.*[_\.]\)*\([a-z]\{3\}\)\.html\?$/\2/p")
+        case "$currency" in
+            eur|usd|cad|gbp)
+                python "parse_${service_name}.py" $PARSE_SCRIPT_OPTIONS "$file" "$currency"
+                ;;
+            *)
+                python "parse_${service_name}.py" $PARSE_SCRIPT_OPTIONS "$file"
+                ;;
+        esac
+	done
+}
+
 # -- Cloudflare --
 echo 'Parsing Cloudflare domain prices...'
-if [ -f 'html/cloudflare.html' ]; then
-	python parse_cloudflare.pypy $PARSE_SCRIPT_OPTIONS html/cloudflare.html
+if [ $FORCE_DOWNLOAD -eq 1 ] || [ ! -f 'html/auto/cloudflare_usd.html' ]; then
+	mkdir -p html/auto/
+	wget -q -O 'html/auto/cloudflare_usd.html' 'https://cfdomainpricing.com/' 2>/dev/null
 fi
-if [ ! -f 'html/cloudflare_usd.html' ] || [ $FORCE_DOWNLOAD -eq 1 ]; then
-	wget -q -O 'html/cloudflare_usd.html' 'https://cfdomainpricing.com/' 2>/dev/null
-fi
-if [ -f 'html/cloudflare_usd.html' ]; then
-	python parse_cloudflare.py $PARSE_SCRIPT_OPTIONS html/cloudflare_usd.html
-fi
-if [ -f 'html/cloudflare_eur.html' ]; then
-	python parse_cloudflare.py $PARSE_SCRIPT_OPTIONS html/cloudflare_eur.html
-fi
+parse_service 'cloudflare'
 echo ''
 
 # -- Dyjix --
 echo 'Parsing Dyjix domain prices...'
-if [ -f 'html/dyjix.html' ]; then
-	python parse_dyjix.py $PARSE_SCRIPT_OPTIONS html/dyjix.html
+if [ $FORCE_DOWNLOAD -eq 1 ] || [ ! -f 'html/auto/dyjix_eur.html' ]; then
+	mkdir -p html/auto/
+	wget -q -O 'html/auto/dyjix_eur.html' 'https://www.dyjix.eu/panel/cart.php?a=add&domain=register&language=english' 2>/dev/null
 fi
-if [ ! -f 'html/dyjix_eur.html' ] || [ $FORCE_DOWNLOAD -eq 1 ]; then
-	wget -q -O 'html/dyjix_eur.html' 'https://www.dyjix.eu/panel/cart.php?a=add&domain=register&language=english' 2>/dev/null
-fi
-if [ -f 'html/dyjix_eur.html' ]; then
-	python parse_dyjix.py $PARSE_SCRIPT_OPTIONS html/dyjix_eur.html
-fi
+parse_service 'dyjix'
 echo ''
 
 # -- Gandi --
 echo 'Parsing Gandi domain prices...'
-if [ -f 'html/gandi.html' ]; then
-	python parse_gandi.py $PARSE_SCRIPT_OPTIONS html/gandi.html
-fi
-if [ ! -f 'html/gandi_xn.html' ] || [ $FORCE_DOWNLOAD -eq 1 ]; then
-	wget -q -O 'html/gandi_xn.html' 'https://www.gandi.net/en/domain/tld?prefix=xn--' 2>/dev/null
-fi
-if [ -f 'html/gandi_xn.html' ]; then
-	python parse_gandi.py $PARSE_SCRIPT_OPTIONS html/gandi_xn.html
-fi
-while read -r letter; do
-	if [ ! -f "html/gandi_${letter}.html" ] || [ $FORCE_DOWNLOAD -eq 1 ]; then
-		wget -q -O "html/gandi_${letter}.html" "https://www.gandi.net/en/domain/tld?prefix=${letter}" 2>/dev/null
+while read -r currency; do
+	currency_upper=$(echo "$currency" | tr '[:lower:]' '[:upper:]')
+	if [ $FORCE_DOWNLOAD -eq 1 ] || [ ! -f "html/auto/gandi_xn_${currency}.html" ]; then
+		mkdir -p html/auto/
+		wget -q -O "html/auto/gandi_xn_${currency}.html" "https://www.gandi.net/en/domain/tld?currency=${currency_upper}&prefix=xn--" 2>/dev/null
 	fi
-	if [ -f "html/gandi_${letter}.html" ]; then
-		python parse_gandi.py $PARSE_SCRIPT_OPTIONS "html/gandi_${letter}.html"
-	fi
-done <<EOF
-$(echo 'abcdefghijklmnopqrstuvwxyz' | fold -w 1)
+	while read -r letter; do
+		if [ $FORCE_DOWNLOAD -eq 1 ] || [ ! -f "html/auto/gandi_${letter}_${currency}.html" ]; then
+			mkdir -p html/auto/
+			wget -q -O "html/auto/gandi_${letter}_${currency}.html" "https://www.gandi.net/en/domain/tld?currency=${currency_upper}&prefix=${letter}" 2>/dev/null
+		fi
+	done <<-EOF
+	$(echo 'abcdefghijklmnopqrstuvwxyz' | fold -w 1)
+	EOF
+done <<-EOF
+eur
+usd
+gbp
 EOF
+parse_service 'gandi'
 echo ''
 
 # -- InternetBS --
 # Automatic download is not available
+# https://internetbs.net/en/price.html
 echo 'Parsing InternetBS domain prices...'
-if [ -f 'html/internetbs.html' ]; then
-	python parse_internetbs.py $PARSE_SCRIPT_OPTIONS html/internetbs.html
-fi
-if [ -f 'html/internetbs_usd.html' ]; then
-	python parse_internetbs.py $PARSE_SCRIPT_OPTIONS html/internetbs_usd.html
-fi
-if [ -f 'html/internetbs_eur.html' ]; then
-	python parse_internetbs.py $PARSE_SCRIPT_OPTIONS html/internetbs_eur.html
-fi
+parse_service 'internetbs'
 echo ''
 
 # -- Namecheap --
@@ -129,15 +127,7 @@ echo ''
 # https://www.namecheap.com/domains/
 # Select "Choose from ALL" and copy source code instead of downloading
 echo 'Parsing Namecheap domain prices...'
-if [ -f 'html/namecheap.html' ]; then
-	python parse_namecheap.py $PARSE_SCRIPT_OPTIONS html/namecheap.html
-fi
-if [ -f 'html/namecheap_usd.html' ]; then
-	python parse_namecheap.py $PARSE_SCRIPT_OPTIONS html/namecheap_usd.html
-fi
-if [ -f 'html/namecheap_eur.html' ]; then
-	python parse_namecheap.py $PARSE_SCRIPT_OPTIONS html/namecheap_eur.html
-fi
+parse_service 'namecheap'
 echo ''
 
 # -- OVH --
@@ -145,23 +135,14 @@ echo ''
 # https://www.ovhcloud.com/en/domains/tld/
 # Toggle "Renewal" and "Transfer" checkboxes
 echo 'Parsing OVH domain prices...'
-if [ -f 'html/ovh.html' ]; then
-	python parse_ovh.py $PARSE_SCRIPT_OPTIONS html/ovh.html
-fi
-if [ -f 'html/ovh_fr.html' ]; then
-	python parse_ovh.py $PARSE_SCRIPT_OPTIONS html/ovh_fr.html
-fi
-if [ -f 'html/ovh_en.html' ]; then
-	python parse_ovh.py $PARSE_SCRIPT_OPTIONS html/ovh_en.html
-fi
+parse_service 'ovh'
 echo ''
 
 # -- Scaleway --
 echo 'Parsing Scaleway domain prices...'
-if [ ! -f 'html/scaleway.html' ] || [ $FORCE_DOWNLOAD -eq 1 ]; then
-	wget -q -O 'html/scaleway.html' 'https://www.scaleway.com/en/domains-name/' 2>/dev/null
+if [ $FORCE_DOWNLOAD -eq 1 ] || [ ! -f 'html/auto/scaleway.html' ]; then
+	mkdir -p html/auto/
+	wget -q -O 'html/auto/scaleway.html' 'https://www.scaleway.com/en/domains-name/' 2>/dev/null
 fi
-if [ -f 'html/scaleway.html' ]; then
-	python parse_scaleway.py $PARSE_SCRIPT_OPTIONS html/scaleway.html
-fi
+parse_service 'scaleway'
 echo ''
