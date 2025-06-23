@@ -1,6 +1,7 @@
 import json
 import os
 import re
+import glob
 from datetime import datetime
 
 DOMAINS_DIR = './domains'
@@ -66,7 +67,8 @@ def main():
 		print(f"Directory {DOMAINS_DIR} does not exist.")
 		return
 
-	files = os.listdir(DOMAINS_DIR)
+	# List files in the domains directory and subdirectories
+	files = glob.glob(os.path.join(DOMAINS_DIR, '**', '*.json'), recursive = True)
 	if not files:
 		print(f"No files found in {DOMAINS_DIR}.")
 		return
@@ -77,6 +79,7 @@ def main():
 			continue
 
 		# Read JSON file
+		file = file[len(DOMAINS_DIR) + 1:]  # Relative path from DOMAINS_DIR
 		json_path = os.path.join(DOMAINS_DIR, file)
 		with open(json_path, 'r') as f:
 			data = json.load(f)
@@ -150,7 +153,7 @@ def main():
 			""".lstrip().replace('\t', '')
 
 		# Write the updated markdown content
-		os.makedirs(MD_DIR, exist_ok = True)
+		os.makedirs(os.path.dirname(md_path), exist_ok = True)
 		with open(md_path, 'w') as f:
 			f.write(new_md)
 
