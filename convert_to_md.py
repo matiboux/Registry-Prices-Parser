@@ -25,6 +25,15 @@ def fmt_date(date):
 	except Exception:
 		return date.split('T')[0] if 'T' in date else date
 
+def convert_usd_to_eur(usd_value):
+	return float(usd_value) * 0.86770
+
+def fmt_eur_from_usd(usd_value):
+	usd_value = float(usd_value)
+	if usd_value == 0:
+		return '€ 0.00'
+	return f"€ ~ {convert_usd_to_eur(usd_value):.2f}"
+
 def fmt_price(price):
 	if not price:
 		return ''
@@ -38,7 +47,7 @@ def fmt_price(price):
 		else:
 			return f"€ {price['eur']}"
 	if 'usd' in price:
-		return f"€ ~ {(float(price['usd']) * 0.86770):.2f}<br>($ {price['usd']})"
+		return f"{fmt_eur_from_usd(price['usd'])}<br>($ {price['usd']})"
 	return json.dumps(price)
 
 def get_price_eur_to_compare(prices):
@@ -47,7 +56,7 @@ def get_price_eur_to_compare(prices):
 	if 'eur' in prices:
 		return float(prices['eur'])
 	if 'usd' in prices:
-		return float(prices['usd']) * 0.86770
+		return convert_usd_to_eur(prices['usd'])
 	return float('inf')
 
 def main():
