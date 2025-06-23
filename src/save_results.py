@@ -2,7 +2,11 @@ import os
 import json
 from datetime import datetime
 
-def save_results(service_name, tld_results):
+def save_results(
+	service_name,
+	tld_results,
+	force_update = False,
+):
 
 	tlds_incomplete = []
 
@@ -23,14 +27,24 @@ def save_results(service_name, tld_results):
 
 		if service_name not in data:
 			data[service_name] = {}
-		data[service_name]['date'] = datetime.now().isoformat()
+		if 'date' not in data[service_name] or force_update:
+			data[service_name]['date'] = datetime.now().isoformat()
+		is_modified = False
 		for key, value in service_data.items():
 			if isinstance(value, dict):
 				if key not in data[service_name]:
 					data[service_name][key] = {}
-				data[service_name][key].update(value)
+				# data[service_name][key].update(value)
+				for sub_key, sub_value in value.items():
+					if data[service_name][key].get(sub_key) != sub_value:
+						data[service_name][key][sub_key] = sub_value
+						is_modified = True
 			else:
-				data[service_name][key] = value
+				if data[service_name].get(key) != value:
+					data[service_name][key] = value
+					is_modified = True
+		if not force_update and is_modified:
+			data[service_name]['date'] = datetime.now().isoformat()
 
 		with open(filename, 'w', encoding='utf-8') as f:
 			json.dump(data, f, indent = 4, ensure_ascii = False)

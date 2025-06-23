@@ -83,16 +83,22 @@ def parse_html(html):
 def main():
 
 	if len(sys.argv) != 2:
-		print('Usage: python parse.py <report.html>')
+		print('Usage: python parse.py [-f] <report.html>')
 		sys.exit(1)
 
-	html_path = sys.argv[1]
+	argi = 1
+	force_update = False
+	if sys.argv[argi] == '-f':
+		force_update = True
+		argi += 1
+
+	html_path = sys.argv[argi]
 	with open(html_path, encoding='utf-8') as f:
 		html = f.read()
 
 	tld_results = parse_html(html)
 
-	save_results(SERVICE_NAME, tld_results)
+	save_results(SERVICE_NAME, tld_results, force_update = force_update)
 
 if __name__ == '__main__':
 	main()
