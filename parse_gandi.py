@@ -37,8 +37,8 @@ def parse_html(html):
 		tld = tld.lstrip('.').encode('idna').decode('ascii')
 
 		registration_price = parse_price_cell(cells[1])
-		renewal_price = parse_price_cell(cells[2])
-		transfer_price = parse_price_cell(cells[3])
+		transfer_price = parse_price_cell(cells[2])
+		renewal_price = parse_price_cell(cells[3])
 		owner_change_price = parse_price_cell(cells[4])
 		restore_price = parse_price_cell(cells[5])
 
