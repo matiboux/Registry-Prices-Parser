@@ -2,7 +2,7 @@ import sys
 
 from bs4 import BeautifulSoup
 
-from src.money import parse_price
+from src.money import parse_price_str
 from src.save_results import save_results
 
 
@@ -63,7 +63,7 @@ def parse_html(html):
 		else:
 			member_price = member_td.get_text(strip=True).split()[0]
 
-		member_price = parse_price(member_price)
+		member_price = parse_price_str(member_price)
 
 		if tld not in tld_results:
 			tld_results[tld] = TLD_RESULT_TEMPLATE.copy()

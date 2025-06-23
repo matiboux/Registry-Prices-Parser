@@ -2,7 +2,7 @@ import sys
 
 from bs4 import BeautifulSoup
 
-from src.money import parse_price
+from src.money import parse_price_str
 from src.save_results import save_results
 
 
@@ -47,12 +47,7 @@ def parse_price_cell(cell):
 	price_elt = cell.find(class_ = 'comparative-table__price')
 	if not price_elt:
 		return None
-	price_str = price_elt.get_text(strip=True).lower()
-	if not price_str or price_str == 'n/a':
-		return None
-	if price_str == 'free':
-		price_str = '$0.00'
-	return parse_price(price_str)
+	return parse_price_str(price_elt.get_text(strip=True))
 
 def parse_html(html):
 

@@ -19,3 +19,11 @@ def parse_price(price_str):
 	currency = parse_currency_symbol(currency_symbol)
 	price = matches.group(2).strip().replace(',', '.')
 	return { 'currency': currency, 'price': price }
+
+def parse_price_str(price_str):
+	price_str = price_str.strip().lower()
+	if not price_str or price_str == 'n/a':
+		return None
+	if price_str == 'free':
+		price_str = '$0.00'
+	return parse_price(price_str)

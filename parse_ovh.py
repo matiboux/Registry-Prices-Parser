@@ -2,7 +2,7 @@ import sys
 
 from bs4 import BeautifulSoup
 
-from src.money import parse_price
+from src.money import parse_price_str
 from src.save_results import save_results
 
 
@@ -40,9 +40,9 @@ def parse_html(html):
 			continue
 		tld = tld.lstrip('.').encode('idna').decode('ascii')
 
-		registration_price = parse_price(cells[1].get_text(strip=True))
-		renewal_price = parse_price(cells[2].get_text(strip=True))
-		transfer_price = parse_price(cells[3].get_text(strip=True))
+		registration_price = parse_price_str(cells[1].get_text(strip=True))
+		renewal_price = parse_price_str(cells[2].get_text(strip=True))
+		transfer_price = parse_price_str(cells[3].get_text(strip=True))
 
 		tld_results[tld] = get_tld_result(
 			{ registration_price['currency']: registration_price['price'] },

@@ -2,7 +2,7 @@ import sys
 
 from bs4 import BeautifulSoup
 
-from src.money import parse_price
+from src.money import parse_price_str
 from src.save_results import save_results
 
 
@@ -24,14 +24,6 @@ def get_tld_result(
 			{}
 		),
 	}
-
-def parse_price_str(price_str):
-	price_str = price_str.strip().lower()
-	if not price_str or price_str == 'n/a':
-		return None
-	if price_str == 'free':
-		price_str = '$0.00'
-	return parse_price(price_str)
 
 def parse_html(html):
 
