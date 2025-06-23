@@ -1,6 +1,16 @@
 import os
 import json
+import re
 from datetime import datetime
+
+def get_tld_dirname(tld):
+	tld_prefix = tld[0]
+	if not re.match(r'^[a-z]$', tld_prefix):
+		tld_prefix = '_'
+	elif tld_prefix == 'x':
+		if tld.startswith('xn--'):
+			tld_prefix = '_'
+	return f"domains/{tld_prefix}"
 
 def save_results(
 	service_name,
@@ -12,8 +22,9 @@ def save_results(
 
 	for tld, service_data in tld_results.items():
 
-		os.makedirs('domains', exist_ok=True)
-		filename = f"domains/{tld}.json"
+		tld_dir = get_tld_dirname(tld)
+		os.makedirs(tld_dir, exist_ok=True)
+		filename = f"{tld_dir}/{tld}.json"
 
 		if any(not value for value in service_data.values()):
 			tlds_incomplete.append(tld)
