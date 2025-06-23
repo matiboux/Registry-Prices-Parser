@@ -1,10 +1,10 @@
 def get_tld_result(
 	*,
-	registration,
-	renewal,
-	transfer,
-	owner_change,
-	restore,
+	registration = None,
+	renewal = None,
+	transfer = None,
+	owner_change = None,
+	restore = None,
 ):
 	return {
 		**(
