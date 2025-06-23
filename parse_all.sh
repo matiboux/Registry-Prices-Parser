@@ -63,7 +63,7 @@ parse_service() {
 	for file in $(find html -type f -name "${service_name}[_\.]*"); do
         currency=$(echo "$file" | sed -n "s/.*${service_name}[_\.]\(.*[_\.]\)*\([a-z]\{3\}\)\.html\?$/\2/p")
         case "$currency" in
-            eur|usd|cad|gbp)
+            eur|usd|cad|gbp|jpy)
                 python "parse_${service_name}.py" $PARSE_SCRIPT_OPTIONS "$file" "$currency"
                 ;;
             *)
