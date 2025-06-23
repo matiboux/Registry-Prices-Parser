@@ -38,6 +38,7 @@ def parse_html(html):
 		tld = cells[0].get_text(strip=True).lower()
 		if not tld.startswith('.'):
 			continue
+		tld = tld.replace('promotion', '').strip()
 		tld = tld.lstrip('.').encode('idna').decode('ascii')
 
 		registration_price = parse_price_str(cells[1].get_text(strip=True))
