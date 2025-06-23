@@ -9,7 +9,7 @@ FORCE_UPDATE_DATES=0
 
 while [ $# -gt 0 ]; do
 
-	if [ "${1:0:1}" != '-' ]; then
+	if [ "$(echo "$1" | head -c 1)" = '-' ]; then
 		break
 	fi
 
