@@ -36,7 +36,7 @@ def parse_price_str(price_str):
 	if not price_str or price_str == 'n/a':
 		return None
 	if price_str == 'free':
-		price_str = '0.00'
+		price_str = '$0.00'
 	return parse_price(price_str)
 
 def parse_html(html):
