@@ -38,6 +38,19 @@ if [ -f 'html/cloudflare_eur.html' ]; then
 fi
 echo ''
 
+# -- Dyjix --
+echo 'Parsing Dyjix domain prices...'
+if [ -f 'html/dyjix.html' ]; then
+	python parse_dyjix.py html/dyjix.html
+fi
+if [ ! -f 'html/dyjix_eur.html' ] || [ $FORCE_DOWNLOAD -eq 1 ]; then
+	wget -q -O 'html/dyjix_eur.html' 'https://www.dyjix.eu/panel/cart.php?a=add&domain=register&language=english' 2>/dev/null
+fi
+if [ -f 'html/dyjix_eur.html' ]; then
+	python parse_dyjix.py html/dyjix_eur.html
+fi
+echo ''
+
 # -- InternetBS --
 # Automatic download is not available
 echo 'Parsing InternetBS domain prices...'
