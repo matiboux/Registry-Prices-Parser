@@ -87,46 +87,6 @@ if [ -f 'html/dyjix_eur.html' ]; then
 fi
 echo ''
 
-# -- InternetBS --
-# Automatic download is not available
-echo 'Parsing InternetBS domain prices...'
-if [ -f 'html/internetbs.html' ]; then
-	python parse_internetbs.py $PARSE_SCRIPT_OPTIONS html/internetbs.html
-fi
-if [ -f 'html/internetbs_usd.html' ]; then
-	python parse_internetbs.py $PARSE_SCRIPT_OPTIONS html/internetbs_usd.html
-fi
-if [ -f 'html/internetbs_eur.html' ]; then
-	python parse_internetbs.py $PARSE_SCRIPT_OPTIONS html/internetbs_eur.html
-fi
-echo ''
-
-# -- Scaleway --
-echo 'Parsing Scaleway domain prices...'
-if [ ! -f 'html/scaleway.html' ] || [ $FORCE_DOWNLOAD -eq 1 ]; then
-	wget -q -O 'html/scaleway.html' 'https://www.scaleway.com/en/domains-name/' 2>/dev/null
-fi
-if [ -f 'html/scaleway.html' ]; then
-	python parse_scaleway.py $PARSE_SCRIPT_OPTIONS html/scaleway.html
-fi
-echo ''
-
-# -- Namecheap --
-# Automatic download is not available
-# https://www.namecheap.com/domains/
-# Select "Choose from ALL" and copy source code instead of downloading
-echo 'Parsing Namecheap domain prices...'
-if [ -f 'html/namecheap.html' ]; then
-	python parse_namecheap.py $PARSE_SCRIPT_OPTIONS html/namecheap.html
-fi
-if [ -f 'html/namecheap_usd.html' ]; then
-	python parse_namecheap.py $PARSE_SCRIPT_OPTIONS html/namecheap_usd.html
-fi
-if [ -f 'html/namecheap_eur.html' ]; then
-	python parse_namecheap.py $PARSE_SCRIPT_OPTIONS html/namecheap_eur.html
-fi
-echo ''
-
 # -- Gandi --
 echo 'Parsing Gandi domain prices...'
 if [ -f 'html/gandi.html' ]; then
@@ -150,6 +110,36 @@ $(echo 'abcdefghijklmnopqrstuvwxyz' | fold -w 1)
 EOF
 echo ''
 
+# -- InternetBS --
+# Automatic download is not available
+echo 'Parsing InternetBS domain prices...'
+if [ -f 'html/internetbs.html' ]; then
+	python parse_internetbs.py $PARSE_SCRIPT_OPTIONS html/internetbs.html
+fi
+if [ -f 'html/internetbs_usd.html' ]; then
+	python parse_internetbs.py $PARSE_SCRIPT_OPTIONS html/internetbs_usd.html
+fi
+if [ -f 'html/internetbs_eur.html' ]; then
+	python parse_internetbs.py $PARSE_SCRIPT_OPTIONS html/internetbs_eur.html
+fi
+echo ''
+
+# -- Namecheap --
+# Automatic download is not available
+# https://www.namecheap.com/domains/
+# Select "Choose from ALL" and copy source code instead of downloading
+echo 'Parsing Namecheap domain prices...'
+if [ -f 'html/namecheap.html' ]; then
+	python parse_namecheap.py $PARSE_SCRIPT_OPTIONS html/namecheap.html
+fi
+if [ -f 'html/namecheap_usd.html' ]; then
+	python parse_namecheap.py $PARSE_SCRIPT_OPTIONS html/namecheap_usd.html
+fi
+if [ -f 'html/namecheap_eur.html' ]; then
+	python parse_namecheap.py $PARSE_SCRIPT_OPTIONS html/namecheap_eur.html
+fi
+echo ''
+
 # -- OVH --
 # Automatic download is not available
 # https://www.ovhcloud.com/en/domains/tld/
@@ -163,5 +153,15 @@ if [ -f 'html/ovh_fr.html' ]; then
 fi
 if [ -f 'html/ovh_en.html' ]; then
 	python parse_ovh.py $PARSE_SCRIPT_OPTIONS html/ovh_en.html
+fi
+echo ''
+
+# -- Scaleway --
+echo 'Parsing Scaleway domain prices...'
+if [ ! -f 'html/scaleway.html' ] || [ $FORCE_DOWNLOAD -eq 1 ]; then
+	wget -q -O 'html/scaleway.html' 'https://www.scaleway.com/en/domains-name/' 2>/dev/null
+fi
+if [ -f 'html/scaleway.html' ]; then
+	python parse_scaleway.py $PARSE_SCRIPT_OPTIONS html/scaleway.html
 fi
 echo ''
