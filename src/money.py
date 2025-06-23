@@ -6,6 +6,7 @@ def parse_currency_symbol(symbol):
 		'$': 'usd',
 		'us$': 'usd',
 		'£': 'gbp',
+		'c$': 'cad',
 	}
 	return currency_symbols.get(symbol, symbol)
 
