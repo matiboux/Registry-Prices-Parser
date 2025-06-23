@@ -131,11 +131,7 @@ def main():
 		else:
 			# Markdown file does not exist, create new
 			new_md = f"""
-			---
-			secret: false
-			---
-
-			# Compare `.{'com'}` domain names
+			# Compare `.{data['tld']}` domain names
 
 			## Summary
 
@@ -145,6 +141,7 @@ def main():
 			""".lstrip().replace('\t', '')
 
 		# Write the updated markdown content
+		os.makedirs(MD_DIR, exist_ok = True)
 		with open(md_path, 'w') as f:
 			f.write(new_md)
 
