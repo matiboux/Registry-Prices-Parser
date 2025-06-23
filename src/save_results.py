@@ -45,7 +45,6 @@ def save_results(
 			if isinstance(value, dict):
 				if key not in data[service_name]:
 					data[service_name][key] = {}
-				# data[service_name][key].update(value)
 				for sub_key, sub_value in value.items():
 					if data[service_name][key].get(sub_key) != sub_value:
 						data[service_name][key][sub_key] = sub_value
