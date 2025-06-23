@@ -10,7 +10,7 @@ fmt_service_map = {
 	'cloudflare': 'Cloudflare',
 	'dyjix': 'Dyjix',
 	'Gandi': 'Gandi',
-	'internetbs': 'InternetBS',
+	'internetbs': 'Internet.bs',
 	'namecheap': 'Namecheap',
 	'ovh': 'OVH',
 	'scaleway': 'Scaleway',
