@@ -3,21 +3,11 @@ import sys
 from bs4 import BeautifulSoup
 
 from src.money import parse_price_str
+from src.get_tld_result import get_tld_result
 from src.save_results import save_results
 
 
 SERVICE_NAME = 'ovh'
-
-def get_tld_result(
-	registration,
-	renewal,
-	transfer,
-):
-	return {
-		'registration': registration,
-		'renewal': renewal,
-		'transfer': transfer,
-	}
 
 def parse_html(html):
 
