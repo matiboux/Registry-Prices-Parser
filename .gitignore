@@ -49,6 +49,7 @@ dist-ssr/
 # Application data
 domains/
 html/
+markdown/
 
 # -- Specific to gitignore:
 
