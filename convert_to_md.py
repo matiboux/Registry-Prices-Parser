@@ -121,22 +121,17 @@ def main():
 		# Compute the markdown file path
 		md_path = os.path.join(MD_DIR, f'{file[:-5].upper()}.md')
 
-		file_updated = False
 		if os.path.exists(md_path):
 			with open(md_path, 'r') as f:
 				raw_md = f.read()
-			def sub_md(_):
-				nonlocal file_updated
-				file_updated = True
-				return table + '\n\n'
-			new_md = re.sub(
-				r'\| Service.*\n\|--.*(?:\n\|.*)*(?:\n\n|$)',
-				sub_md,
+			new_md, num_subs = re.subn(
+				r'\| Service.*\n\|--.*(?:\n\|.*)*(?:\n(\n)|\n?$)',
+				table + '\n' + r'\1',
 				raw_md,
 				count = 1,
 				flags = re.NOFLAG,
 			)
-			if not file_updated:
+			if num_subs <= 0:
 				# Table not found, append
 				new_md = raw_md.rstrip() + '\n\n' + table + '\n'
 
