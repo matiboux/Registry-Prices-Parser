@@ -9,11 +9,11 @@ from src.save_results import save_results
 
 SERVICE_NAME = 'gandi'
 
-def parse_price_cell(cell):
+def parse_price_cell(cell, force_currency = None):
 	price_elt = cell.find(class_ = 'comparative-table__price')
 	if not price_elt:
 		return None
-	return parse_price_str(price_elt.get_text(strip=True))
+	return parse_price_str(price_elt.get_text(strip=True), force_currency = force_currency)
 
 def parse_html(html, force_currency = None):
 
