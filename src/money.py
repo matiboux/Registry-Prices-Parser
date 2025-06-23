@@ -10,6 +10,8 @@ def parse_currency_symbol(symbol):
 	return currency_symbols.get(symbol, symbol)
 
 def parse_price(price_str):
+	if not price_str:
+		return None
 	matches = re.match(r'^\s*(.*?)\s*(\d+(?:[.,]\d+)?)\s*(.*?)\s*$', price_str)
 	if not matches:
 		return { 'currency': None, 'price': price_str }

@@ -14,9 +14,21 @@ def get_tld_result(
 	transfer,
 ):
 	return {
-		'registration': registration,
-		'renewal': renewal,
-		'transfer': transfer,
+		**(
+			{ 'registration': { registration['currency']: registration['price'] } }
+			if registration else
+			{}
+		),
+		**(
+			{ 'renewal': { renewal['currency']: renewal['price'] } }
+			if renewal else
+			{}
+		),
+		**(
+			{ 'transfer': { transfer['currency']: transfer['price'] } }
+			if transfer else
+			{}
+		),
 	}
 
 def find_price_str(cell):
@@ -61,9 +73,9 @@ def parse_html(html):
 		transfer_price = parse_price(find_price_str(cells[3]))
 
 		tld_results[tld] = get_tld_result(
-			{ registration_price['currency']: registration_price['price'] },
-			{ renewal_price['currency']: renewal_price['price'] },
-			{ transfer_price['currency']: transfer_price['price'] },
+			registration_price,
+			renewal_price,
+			transfer_price,
 		)
 
 	return tld_results
