@@ -3,27 +3,11 @@ import sys
 from bs4 import BeautifulSoup
 
 from src.money import parse_price_str
+from src.get_tld_result import get_tld_result
 from src.save_results import save_results
 
 
 SERVICE_NAME = 'cloudflare'
-
-def get_tld_result(
-	registration,
-	renewal,
-):
-	return {
-		**(
-			{ 'registration': { registration['currency']: registration['price'] } }
-			if registration else
-			{}
-		),
-		**(
-			{ 'renewal': { renewal['currency']: renewal['price'] } }
-			if renewal else
-			{}
-		),
-	}
 
 def parse_html(html):
 
@@ -50,8 +34,8 @@ def parse_html(html):
 		renewal_price = parse_price_str(cells[2].get_text(strip=True))
 
 		tld_results[tld] = get_tld_result(
-			registration_price,
-			renewal_price,
+			registration = registration_price,
+			renewal = renewal_price,
 		)
 
 	return tld_results

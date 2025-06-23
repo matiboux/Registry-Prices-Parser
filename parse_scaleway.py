@@ -3,23 +3,11 @@ import sys
 from bs4 import BeautifulSoup
 
 from src.money import parse_price_str
+from src.get_tld_result import get_tld_result
 from src.save_results import save_results
 
 
 SERVICE_NAME = 'scaleway'
-
-def get_tld_result(
-	registration,
-	renewal,
-	transfer,
-	restore,
-):
-	return {
-		'registration': registration,
-		'renewal': renewal,
-		'transfer': transfer,
-		'restore': restore,
-	}
 
 def parse_html(html):
 
@@ -48,10 +36,10 @@ def parse_html(html):
 		restore_price = parse_price_str(cells[4].get_text(strip=True))
 
 		tld_results[tld] = get_tld_result(
-			{ registration_price['currency']: registration_price['price'] },
-			{ renewal_price['currency']: renewal_price['price'] },
-			{ transfer_price['currency']: transfer_price['price'] },
-			{ restore_price['currency']: restore_price['price'] },
+			registration = registration_price,
+			renewal = renewal_price,
+			transfer = transfer_price,
+			restore = restore_price,
 		)
 
 	return tld_results

@@ -3,33 +3,11 @@ import sys
 from bs4 import BeautifulSoup
 
 from src.money import parse_price_str
+from src.get_tld_result import get_tld_result
 from src.save_results import save_results
 
 
 SERVICE_NAME = 'namecheap'
-
-def get_tld_result(
-	registration,
-	renewal,
-	transfer,
-):
-	return {
-		**(
-			{ 'registration': { registration['currency']: registration['price'] } }
-			if registration else
-			{}
-		),
-		**(
-			{ 'renewal': { renewal['currency']: renewal['price'] } }
-			if renewal else
-			{}
-		),
-		**(
-			{ 'transfer': { transfer['currency']: transfer['price'] } }
-			if transfer else
-			{}
-		),
-	}
 
 def find_price_str(cell):
 	price_special = cell.find(class_ = 'gb-price--special')
@@ -73,9 +51,9 @@ def parse_html(html):
 		transfer_price = parse_price_str(find_price_str(cells[3]))
 
 		tld_results[tld] = get_tld_result(
-			registration_price,
-			renewal_price,
-			transfer_price,
+			registration = registration_price,
+			renewal = renewal_price,
+			transfer = transfer_price,
 		)
 
 	return tld_results

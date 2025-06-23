@@ -3,45 +3,11 @@ import sys
 from bs4 import BeautifulSoup
 
 from src.money import parse_price_str
+from src.get_tld_result import get_tld_result
 from src.save_results import save_results
 
 
 SERVICE_NAME = 'gandi'
-
-def get_tld_result(
-	registration,
-	renewal,
-	transfer,
-	owner_change,
-	restore,
-):
-	return {
-		**(
-			{ 'registration': { registration['currency']: registration['price'] } }
-			if registration else
-			{}
-		),
-		**(
-			{ 'renewal': { renewal['currency']: renewal['price'] } }
-			if renewal else
-			{}
-		),
-		**(
-			{ 'transfer': { transfer['currency']: transfer['price'] } }
-			if transfer else
-			{}
-		),
-		**(
-			{ 'owner_change': { owner_change['currency']: owner_change['price'] } }
-			if owner_change else
-			{}
-		),
-		**(
-			{ 'restore': { restore['currency']: restore['price'] } }
-			if restore else
-			{}
-		),
-	}
 
 def parse_price_cell(cell):
 	price_elt = cell.find(class_ = 'comparative-table__price')
@@ -77,11 +43,11 @@ def parse_html(html):
 		restore_price = parse_price_cell(cells[5])
 
 		tld_results[tld] = get_tld_result(
-			registration_price,
-			renewal_price,
-			transfer_price,
-			owner_change_price,
-			restore_price,
+			registration = registration_price,
+			renewal = renewal_price,
+			transfer = transfer_price,
+			owner_change = owner_change_price,
+			restore = restore_price,
 		)
 
 	return tld_results

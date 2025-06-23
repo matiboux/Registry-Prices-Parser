@@ -46,9 +46,9 @@ def parse_html(html):
 		transfer_price = parse_price_str(cells[3].get_text(strip=True))
 
 		tld_results[tld] = get_tld_result(
-			{ registration_price['currency']: registration_price['price'] },
-			{ renewal_price['currency']: renewal_price['price'] },
-			{ transfer_price['currency']: transfer_price['price'] },
+			registration = registration_price,
+			renewal = renewal_price,
+			transfer = transfer_price,
 		)
 
 	return tld_results
