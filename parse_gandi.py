@@ -43,8 +43,11 @@ def get_tld_result(
 		),
 	}
 
-def parse_price_str(price_str):
-	price_str = price_str.strip().lower()
+def parse_price_cell(cell):
+	price_elt = cell.find(class_ = 'comparative-table__price')
+	if not price_elt:
+		return None
+	price_str = price_elt.get_text(strip=True).lower()
 	if not price_str or price_str == 'n/a':
 		return None
 	if price_str == 'free':
@@ -72,11 +75,11 @@ def parse_html(html):
 			continue
 		tld = tld.lstrip('.').encode('idna').decode('ascii')
 
-		registration_price = parse_price_str(cells[1].get_text(strip=True))
-		renewal_price = parse_price_str(cells[2].get_text(strip=True))
-		transfer_price = parse_price_str(cells[3].get_text(strip=True))
-		owner_change_price = parse_price_str(cells[4].get_text(strip=True))
-		restore_price = parse_price_str(cells[5].get_text(strip=True))
+		registration_price = parse_price_cell(cells[1])
+		renewal_price = parse_price_cell(cells[2])
+		transfer_price = parse_price_cell(cells[3])
+		owner_change_price = parse_price_cell(cells[4])
+		restore_price = parse_price_cell(cells[5])
 
 		tld_results[tld] = get_tld_result(
 			registration_price,
