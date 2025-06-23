@@ -8,13 +8,6 @@ from src.save_results import save_results
 
 SERVICE_NAME = 'internetbs'
 
-TLD_RESULT_TEMPLATE = {
-	'registration': '',
-	'renewal': '',
-	'transfer': '',
-	'restore': ''
-}
-
 TLD_OPERATION_MAP = {
 	'registration': 'registration',
 	'renewal': 'renewal',
@@ -66,7 +59,7 @@ def parse_html(html, force_currency = None):
 		member_price = parse_price_str(member_price, force_currency=force_currency)
 
 		if tld not in tld_results:
-			tld_results[tld] = TLD_RESULT_TEMPLATE.copy()
+			tld_results[tld] = {}
 
 		tld_results[tld][op_key] = {
 			member_price['currency']: member_price['price']
