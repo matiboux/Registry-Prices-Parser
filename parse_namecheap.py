@@ -18,7 +18,7 @@ def find_price_str(cell):
 		return price_special.get_text(strip = True)
 	return price_through.get_text(strip = True)
 
-def parse_html(html):
+def parse_html(html, force_currency = None):
 
 	soup = BeautifulSoup(html, 'html.parser')
 	tld_results = {}
@@ -46,9 +46,9 @@ def parse_html(html):
 			continue
 		tld = tld.lstrip('.').encode('idna').decode('ascii')
 
-		registration_price = parse_price_str(find_price_str(cells[1]))
-		renewal_price = parse_price_str(find_price_str(cells[2]))
-		transfer_price = parse_price_str(find_price_str(cells[3]))
+		registration_price = parse_price_str(find_price_str(cells[1]), force_currency = force_currency)
+		renewal_price = parse_price_str(find_price_str(cells[2]), force_currency = force_currency)
+		transfer_price = parse_price_str(find_price_str(cells[3]), force_currency = force_currency)
 
 		tld_results[tld] = get_tld_result(
 			registration = registration_price,
@@ -61,10 +61,12 @@ def parse_html(html):
 def main():
 
 	if len(sys.argv) != 2:
-		print('Usage: python parse.py [-f] <report.html>')
+		print('Usage: python parse.py [-f] <report.html> [force_currency]')
 		sys.exit(1)
 
 	argi = 1
+	argc = len(sys.argv)
+
 	force_update = False
 	if sys.argv[argi] == '-f':
 		force_update = True
@@ -73,8 +75,14 @@ def main():
 	html_path = sys.argv[argi]
 	with open(html_path, encoding='utf-8') as f:
 		html = f.read()
+	argi += 1
 
-	tld_results = parse_html(html)
+	force_currency = None
+	if argc > argi:
+		force_currency = sys.argv[argi]
+		argi += 1
+
+	tld_results = parse_html(html, force_currency = force_currency)
 
 	save_results(SERVICE_NAME, tld_results, force_update = force_update)
 
