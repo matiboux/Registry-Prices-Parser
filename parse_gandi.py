@@ -54,7 +54,7 @@ def parse_html(html, force_currency = None):
 
 def main():
 
-	if len(sys.argv) != 2:
+	if len(sys.argv) < 2:
 		print('Usage: python parse.py [-f] <report.html> [force_currency]')
 		sys.exit(1)
 
