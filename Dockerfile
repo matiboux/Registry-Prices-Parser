@@ -47,14 +47,6 @@ ENV UV_PROJECT_ENVIRONMENT=/app/.venv
 ENV VIRTUAL_ENV="$UV_PROJECT_ENVIRONMENT"
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
-# # Install libexpat1
-# # (hadolint: Ignore non-pinned apt package version)
-# # hadolint ignore=DL3008
-# RUN --mount=type=cache,sharing=locked,id=apt-cache,target=/var/cache/apt \
-# 	--mount=type=cache,sharing=locked,id=apt-lib,target=/var/lib/apt \
-# 	apt-get update && \
-# 	apt-get install -y --no-install-recommends libexpat1
-
 
 # --
 # Python build base stage
@@ -71,6 +63,14 @@ RUN --mount=type=cache,sharing=locked,id=apt-cache,target=/var/cache/apt \
 	--mount=type=cache,sharing=locked,id=apt-lib,target=/var/lib/apt \
 	apt-get update && \
 	apt-get install -y --no-install-recommends build-essential
+
+# Install curl
+# (hadolint: Ignore non-pinned apt package version)
+# hadolint ignore=DL3008
+RUN --mount=type=cache,sharing=locked,id=apt-cache,target=/var/cache/apt \
+	--mount=type=cache,sharing=locked,id=apt-lib,target=/var/lib/apt \
+	apt-get update && \
+	apt-get install -y --no-install-recommends curl
 
 
 # --
