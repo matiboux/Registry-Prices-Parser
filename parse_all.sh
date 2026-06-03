@@ -1,15 +1,16 @@
 #!/bin/sh
+set -e
 
 # Requirements:
-# apt update && apt install -y wget; pip install beautifulsoup4
+# apt update && apt install -y curl; pip install beautifulsoup4
 
-RESET_DOMAINS=0
-FORCE_DOWNLOAD=0
-FORCE_UPDATE_DATES=0
+RESET_DOMAINS='false'
+FORCE_DOWNLOAD='false'
+FORCE_UPDATE_DATES='false'
 
 while [ $# -gt 0 ]; do
 
-	if [ "$(echo "$1" | head -c 1)" = '-' ]; then
+	if [ "$(echo "$1" | head -c 1)" != '-' ]; then
 		break
 	fi
 
@@ -25,42 +26,44 @@ while [ $# -gt 0 ]; do
 	fi
 
 	if [ "$1" = '-r' ] || [ "$1" = '--reset-domains' ]; then
-		RESET_DOMAINS=1
+		RESET_DOMAINS='true'
 		shift
 		continue
 	fi
 
 	if [ "$1" = '-f' ] || [ "$1" = '--force-download' ]; then
-		FORCE_DOWNLOAD=1
+		FORCE_DOWNLOAD='true'
 		shift
 		continue
 	fi
 
 	if [ "$1" = '-u' ] || [ "$1" = '--update-dates' ]; then
-		FORCE_UPDATE_DATES=1
+		FORCE_UPDATE_DATES='true'
 		shift
 		continue
 	fi
 
 done
 
-if [ $RESET_DOMAINS -eq 1 ]; then
-	rm -rf domains/
+if [ "$RESET_DOMAINS" = 'true' ]; then
+	rm -rf './domains/'
 fi
 
-mkdir -p html/
-mkdir -p domains/
+mkdir -p './html/'
+mkdir -p './domains/'
 
 PARSE_SCRIPT_OPTIONS=''
-if [ $FORCE_UPDATE_DATES -eq 1 ]; then
+if [ "$FORCE_UPDATE_DATES" = 'true' ]; then
 	PARSE_SCRIPT_OPTIONS='-u'
 fi
 
 echo ''
 
+# ---
+
 parse_service() {
 	service_name="$1"
-	for file in $(find html -type f -name "${service_name}[_\.]*"); do
+	for file in $(find './html' -type f -name "${service_name}[_\.]*"); do
         currency=$(echo "$file" | sed -n "s/.*${service_name}[_\.]\(.*[_\.]\)*\([a-z]\{3\}\)\.html\?$/\2/p")
         case "$currency" in
             eur|usd|cad|gbp|jpy)
@@ -73,36 +76,55 @@ parse_service() {
 	done
 }
 
-# -- Cloudflare --
+# ---
+
+# Cloudflare:
 echo 'Parsing Cloudflare domain prices...'
-if [ $FORCE_DOWNLOAD -eq 1 ] || [ ! -f 'html/auto/cloudflare_usd.html' ]; then
-	mkdir -p html/auto/
-	wget -q -O 'html/auto/cloudflare_usd.html' 'https://cfdomainpricing.com/' 2>/dev/null
+if [ "$FORCE_DOWNLOAD" = 'true' ] || [ ! -f './html/auto/cloudflare_usd.html' ]; then
+	mkdir -p './html/auto/'
+	curl -X GET -sL \
+		'https://cfdomainpricing.com/' \
+		-o './html/auto/cloudflare_usd.html' \
+		2> /dev/null
+	echo 'Downloaded Cloudflare domain prices.'
 fi
 parse_service 'cloudflare'
 echo ''
 
-# -- Dyjix --
+# Dyjix:
 echo 'Parsing Dyjix domain prices...'
-if [ $FORCE_DOWNLOAD -eq 1 ] || [ ! -f 'html/auto/dyjix_eur.html' ]; then
-	mkdir -p html/auto/
-	wget -q -O 'html/auto/dyjix_eur.html' 'https://www.dyjix.eu/panel/cart.php?a=add&domain=register&language=english' 2>/dev/null
+if [ "$FORCE_DOWNLOAD" = 'true' ] || [ ! -f './html/auto/dyjix_eur.html' ]; then
+	mkdir -p './html/auto/'
+	curl -X GET -sL \
+		'https://www.dyjix.eu/panel/cart.php?a=add&domain=register&language=english' \
+		-o './html/auto/dyjix_eur.html' \
+		2> /dev/null
+	echo 'Downloaded Dyjix domain prices.'
 fi
 parse_service 'dyjix'
 echo ''
 
-# -- Gandi --
+# Gandi:
 echo 'Parsing Gandi domain prices...'
+downloaded_gandi='false'
 while read -r currency; do
 	currency_upper=$(echo "$currency" | tr '[:lower:]' '[:upper:]')
-	if [ $FORCE_DOWNLOAD -eq 1 ] || [ ! -f "html/auto/gandi_xn_${currency}.html" ]; then
-		mkdir -p html/auto/
-		wget -q -O "html/auto/gandi_xn_${currency}.html" "https://www.gandi.net/en/domain/tld?currency=${currency_upper}&prefix=xn--" 2>/dev/null
+	if [ "$FORCE_DOWNLOAD" = 'true' ] || [ ! -f "./html/auto/gandi_xn_${currency}.html" ]; then
+		mkdir -p './html/auto/'
+		curl -X GET -sL \
+			"https://www.gandi.net/en/domain/tld?currency=${currency_upper}&prefix=xn--" \
+			-o "./html/auto/gandi_xn_${currency}.html" \
+			2> /dev/null
+		downloaded_gandi='true'
 	fi
 	while read -r letter; do
-		if [ $FORCE_DOWNLOAD -eq 1 ] || [ ! -f "html/auto/gandi_${letter}_${currency}.html" ]; then
-			mkdir -p html/auto/
-			wget -q -O "html/auto/gandi_${letter}_${currency}.html" "https://www.gandi.net/en/domain/tld?currency=${currency_upper}&prefix=${letter}" 2>/dev/null
+		if [ "$FORCE_DOWNLOAD" = 'true' ] || [ ! -f "./html/auto/gandi_${letter}_${currency}.html" ]; then
+			mkdir -p './html/auto/'
+			curl -X GET -sL \
+				"https://www.gandi.net/en/domain/tld?currency=${currency_upper}&prefix=${letter}" \
+				-o "./html/auto/gandi_${letter}_${currency}.html" \
+				2> /dev/null
+			downloaded_gandi='true'
 		fi
 	done <<-EOF
 	$(echo 'abcdefghijklmnopqrstuvwxyz' | fold -w 1)
@@ -112,17 +134,20 @@ eur
 usd
 gbp
 EOF
+if [ "$downloaded_gandi" = 'true' ]; then
+	echo 'Downloaded Gandi domain prices.'
+fi
 parse_service 'gandi'
 echo ''
 
-# -- InternetBS --
+# InternetBS:
 # Automatic download is not available
 # https://internetbs.net/en/price.html
 echo 'Parsing InternetBS domain prices...'
 parse_service 'internetbs'
 echo ''
 
-# -- Namecheap --
+# Namecheap:
 # Automatic download is not available
 # https://www.namecheap.com/domains/
 # Select "Choose from ALL" and copy source code instead of downloading
@@ -130,7 +155,7 @@ echo 'Parsing Namecheap domain prices...'
 parse_service 'namecheap'
 echo ''
 
-# -- OVH --
+# OVH:
 # Automatic download is not available
 # https://www.ovhcloud.com/en/domains/tld/
 # Toggle "Renewal" and "Transfer" checkboxes
@@ -138,11 +163,15 @@ echo 'Parsing OVH domain prices...'
 parse_service 'ovh'
 echo ''
 
-# -- Scaleway --
+# Scaleway:
 echo 'Parsing Scaleway domain prices...'
-if [ $FORCE_DOWNLOAD -eq 1 ] || [ ! -f 'html/auto/scaleway.html' ]; then
-	mkdir -p html/auto/
-	wget -q -O 'html/auto/scaleway.html' 'https://www.scaleway.com/en/domains-name/' 2>/dev/null
+if [ "$FORCE_DOWNLOAD" = 'true' ] || [ ! -f './html/auto/scaleway.html' ]; then
+	mkdir -p './html/auto/'
+	curl -X GET -sL \
+		'https://www.scaleway.com/en/domains-name/' \
+		-o './html/auto/scaleway.html' \
+		2> /dev/null
+	echo 'Downloaded Scaleway domain prices.'
 fi
 parse_service 'scaleway'
 echo ''
