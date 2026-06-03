@@ -1,0 +1,56 @@
+[project]
+name = "registry-prices-parser"
+version = "0.1.0"
+description = "Registry Prices Parser"
+requires-python = ">=3.11"
+dependencies = [
+    "beautifulsoup4>=4.14.3",
+]
+
+[dependency-groups]
+dev = []
+
+[tool.coverage.run]
+omit = [
+	# Omit test files
+	"./test/*",
+]
+
+[tool.coverage.report]
+# See https://coverage.readthedocs.io/en/7.11.0/excluding.html#advanced-exclusion
+exclude_also = [
+	'if __name__ == .__main__.:',
+	'def main\(\) -> None:',
+]
+
+[tool.ruff]
+line-length = 100
+
+[tool.ruff.lint]
+# TODO: Include more rules as the codebase matures
+# (e.g. N (naming), C90 (complexity), S (security), and eventually ALL)
+select = ["F", "E", "W", "I"]
+# Ignore rules:
+# - COM812 (missing-trailing-comma) conflicts with the formatter
+# - D203 (incorrect-blank-line-before-class) to enable D211 (blank-line-before-class)
+# - D206 (docstring-tab-indentation) because we use tabs for indentation
+# - D213 (multi-line-summary-second-line) to enable D212 (multi-line-summary-first-line)
+# - Q000 (bad-quotes-inline-string) conflicts with quote-style configuration
+# - S104 (hardcoded-bind-all-interfaces) prevents host binding within a Docker container
+# - W191 (tab-indentation) conflicts with tab indentation style
+ignore = ["COM812", "D203", "D206", "D213", "Q000", "S104", "W191"]
+fixable = ["ALL"]
+unfixable = []
+# Allow unused variables when underscore-prefixed.
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+[tool.ruff.lint.isort]
+known-first-party = []
+known-third-party = []
+
+[tool.ruff.format]
+quote-style = "preserve"
+docstring-code-format = true
+indent-style = "tab"
+skip-magic-trailing-comma = false
+line-ending = "lf"
