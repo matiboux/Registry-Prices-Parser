@@ -1,0 +1,41 @@
+# Services definition for running CLI commands
+
+services:
+
+  # :: App
+
+  app-volumes:
+    # Build
+    image: matiboux/chown-volumes:latest
+    # Deploy
+    environment:
+      UID: ${DOCKER_UID:-${UID:-1000}}
+      VOLUMES: |
+        /app
+    volumes:
+      - .:/app
+
+  app:
+    # Extend
+    extends:
+      file: ./docker-compose.yml
+      service: app
+    # Build override
+    image: ${IMAGES_PREFIX:-app}-cli-app:${IMAGES_TAG:-latest}
+    build:
+      target: app_cli
+      args: !override
+        UID: ${DOCKER_UID:-${UID:-1000}}
+    # Deploy override
+    depends_on: !override
+      app-volumes:
+        condition: service_completed_successfully
+    user: ${DOCKER_UID:-${UID:-1000}}
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    environment: !reset null
+    tmpfs:
+      - /tmp:mode=1777,exec,uid=${DOCKER_UID:-${UID:-1000}},gid=0
+    volumes:
+      - .:/app
+    ports: !reset null
